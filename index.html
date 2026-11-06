@@ -1,12 +1,64 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>FaceNile</title>
+<head><title>FaceNile - All Countries</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>body{font-family:Verdana;margin:0;background:#fff} .top{background:#3B5998;color:#fff;padding:8px;display:flex;gap:6px;align-items:center} .top input{padding:5px;flex:1} .top button{background:#fff;color:#3B5998;border:none;padding:6px 8px;font-weight:bold} input,select{padding:7px;margin:4px 0;width:100%} button{background:#3B5998;color:#fff;border:none;padding:8px;width:100%;font-weight:bold} .wrap{max-width:600px;margin:auto;padding:10px} .row{display:flex;gap:6px} .avatar{width:40px;height:40px;background:#3B5998;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold} .post{border:1px solid #ccc;padding:8px;margin:8px 0}</style>
 </head>
-<body style="text-align:center; font-family:sans-serif; background:#e8f5e9; padding:40px;">
-<h1 style="color:#2e7d32;">Welcome to FaceNile</h1>
-<p>Built in Juba, South Sudan</p>
-<p>Connect, Share, Grow.</p>
-<button style="padding:15px 30px; background:#2e7d32; color:white; border:none; border-radius:10px; font-size:18px;">Join FaceNile</button>
+<body>
+<div class="top" id="topBar" style="display:none"><b>facenile</b><input id="search" placeholder="🔍 Search friends..." oninput="doSearch(this.value)"><button onclick="goHome()">🏠 Home</button><button onclick="goProfile()">👤 Profile</button><button onclick="alert('Add Friend')">👥+</button><button onclick="alert('Messages')">💬</button><button onclick="alert('Notifications')">🔔</button></div>
+<div class="wrap" id="auth">
+<h2 style="color:#3B5998;text-align:center">facenile</h2>
+<p style="text-align:center;font-size:13px">Connect with friends - 20+ Only - All Countries</p>
+<div style="display:flex;gap:6px"><button onclick="show('login')">Log In</button><button onclick="show('signup')">Sign Up</button></div>
+<div id="loginBox">
+<label style="font-size:12px;color:#666">Select your country + code</label>
+<input placeholder="🔍 Search country... e.g. Kenya, +254, Japan" oninput="filterC(this.value,'loginCountry')">
+<select id="loginCountry"></select>
+<input id="loginName" placeholder="Phone / Full Name / Email">
+<input id="loginPass" type="password" placeholder="Password">
+<button onclick="doLogin()">Log In</button>
+</div>
+<div id="signupBox" style="display:none">
+<div class="row"><input id="first" placeholder="First Name *"><input id="last" placeholder="Last Name *"></div>
+<div class="row"><select id="dDay"></select><select id="dMon"></select><select id="dYear"></select></div>
+<label style="font-size:12px;color:#666">Select your country + code</label>
+<input id="countrySearch" placeholder="🔍 Search country... e.g. South Sudan, +211" oninput="filterC(this.value,'country')">
+<select id="country"></select>
+<input id="phone" placeholder="Phone Number *">
+<input id="pass" type="password" placeholder="New Password *">
+<p id="err" style="color:red;text-align:center"></p>
+<button onclick="doSignup()">Sign Up</button>
+</div>
+</div>
+<div class="wrap" id="feed" style="display:none">
+<div style="display:flex;gap:10px;align-items:center"><div class="avatar" id="av">F</div><div><b id="pName"></b><div id="pMeta" style="font-size:12px;color:#666"></div><div id="pFlag" style="font-size:13px"></div></div><button onclick="logout()" style="width:auto;margin-left:auto">Log Out</button></div>
+<div style="margin-top:10px"><input id="postText" placeholder="What's on your mind?"><button onclick="createPost()">Post</button></div>
+<div id="searchRes" style="font-size:13px"></div>
+<div id="posts"></div>
+</div>
+<script>
+// ALL COUNTRIES - South Sudan FIRST, then A-Z
+let COUNTRIES=[
+["🇸🇸","South Sudan","211"],["🇦🇫","Afghanistan","93"],["🇦🇱","Albania","355"],["🇩🇿","Algeria","213"],["🇦🇩","Andorra","376"],["🇦🇴","Angola","244"],["🇦🇬","Antigua and Barbuda","1268"],["🇦🇷","Argentina","54"],["🇦🇲","Armenia","374"],["🇦🇺","Australia","61"],["🇦🇹","Austria","43"],["🇦🇿","Azerbaijan","994"],["🇧🇸","Bahamas","1242"],["🇧🇭","Bahrain","973"],["🇧🇩","Bangladesh","880"],["🇧🇧","Barbados","1246"],["🇧🇾","Belarus","375"],["🇧🇪","Belgium","32"],["🇧🇿","Belize","501"],["🇧🇯","Benin","229"],["🇧🇹","Bhutan","975"],["🇧🇴","Bolivia","591"],["🇧🇦","Bosnia and Herzegovina","387"],["🇧🇼","Botswana","267"],["🇧🇷","Brazil","55"],["🇧🇳","Brunei","673"],["🇧🇬","Bulgaria","359"],["🇧🇫","Burkina Faso","226"],["🇧🇮","Burundi","257"],["🇰🇭","Cambodia","855"],["🇨🇲","Cameroon","237"],["🇨🇦","Canada","1"],["🇨🇻","Cape Verde","238"],["🇨🇫","Central African Republic","236"],["🇹🇩","Chad","235"],["🇨🇱","Chile","56"],["🇨🇳","China","86"],["🇨🇴","Colombia","57"],["🇰🇲","Comoros","269"],["🇨🇬","Congo","242"],["🇨🇩","DR Congo","243"],["🇨🇷","Costa Rica","506"],["🇭🇷","Croatia","385"],["🇨🇺","Cuba","53"],["🇨🇾","Cyprus","357"],["🇨🇿","Czech Republic","420"],["🇩🇰","Denmark","45"],["🇩🇯","Djibouti","253"],["🇩🇲","Dominica","1767"],["🇩🇴","Dominican Republic","1849"],["🇪🇨","Ecuador","593"],["🇪🇬","Egypt","20"],["🇸🇻","El Salvador","503"],["🇬🇶","Equatorial Guinea","240"],["🇪🇷","Eritrea","291"],["🇪🇪","Estonia","372"],["🇸🇿","Eswatini","268"],["🇪🇹","Ethiopia","251"],["🇫🇯","Fiji","679"],["🇫🇮","Finland","358"],["🇫🇷","France","33"],["🇬🇦","Gabon","241"],["🇬🇲","Gambia","220"],["🇬🇪","Georgia","995"],["🇩🇪","Germany","49"],["🇬🇭","Ghana","233"],["🇬🇷","Greece","30"],["🇬🇩","Grenada","1473"],["🇬🇹","Guatemala","502"],["🇬🇳","Guinea","224"],["🇬🇼","Guinea-Bissau","245"],["🇬🇾","Guyana","592"],["🇭🇹","Haiti","509"],["🇭🇳","Honduras","504"],["🇭🇺","Hungary","36"],["🇮🇸","Iceland","354"],["🇮🇳","India","91"],["🇮🇩","Indonesia","62"],["🇮🇷","Iran","98"],["🇮🇶","Iraq","964"],["🇮🇪","Ireland","353"],["🇮🇱","Israel","972"],["🇮🇹","Italy","39"],["🇯🇲","Jamaica","1876"],["🇯🇵","Japan","81"],["🇯🇴","Jordan","962"],["🇰🇿","Kazakhstan","7"],["🇰🇪","Kenya","254"],["🇰🇮","Kiribati","686"],["🇰🇵","North Korea","850"],["🇰🇷","South Korea","82"],["🇰🇼","Kuwait","965"],["🇰🇬","Kyrgyzstan","996"],["🇱🇦","Laos","856"],["🇱🇻","Latvia","371"],["🇱🇧","Lebanon","961"],["🇱🇸","Lesotho","266"],["🇱🇷","Liberia","231"],["🇱🇾","Libya","218"],["🇱🇮","Liechtenstein","423"],["🇱🇹","Lithuania","370"],["🇱🇺","Luxembourg","352"],["🇲🇬","Madagascar","261"],["🇲🇼","Malawi","265"],["🇲🇾","Malaysia","60"],["🇲🇻","Maldives","960"],["🇲🇱","Mali","223"],["🇲🇹","Malta","356"],["🇲🇭","Marshall Islands","692"],["🇲🇷","Mauritania","222"],["🇲🇺","Mauritius","230"],["🇲🇽","Mexico","52"],["🇫🇲","Micronesia","691"],["🇲🇩","Moldova","373"],["🇲🇨","Monaco","377"],["🇲🇳","Mongolia","976"],["🇲🇪","Montenegro","382"],["🇲🇦","Morocco","212"],["🇲🇿","Mozambique","258"],["🇲🇲","Myanmar","95"],["🇳🇦","Namibia","264"],["🇳🇷","Nauru","674"],["🇳🇵","Nepal","977"],["🇳🇱","Netherlands","31"],["🇳🇿","New Zealand","64"],["🇳🇮","Nicaragua","505"],["🇳🇪","Niger","227"],["🇳🇬","Nigeria","234"],["🇲🇰","North Macedonia","389"],["🇳🇴","Norway","47"],["🇴🇲","Oman","968"],["🇵🇰","Pakistan","92"],["🇵🇼","Palau","680"],["🇵🇸","Palestine","970"],["🇵🇦","Panama","507"],["🇵🇬","Papua New Guinea","675"],["🇵🇾","Paraguay","595"],["🇵🇪","Peru","51"],["🇵🇭","Philippines","63"],["🇵🇱","Poland","48"],["🇵🇹","Portugal","351"],["🇶🇦","Qatar","974"],["🇷🇴","Romania","40"],["🇷🇺","Russia","7"],["🇷🇼","Rwanda","250"],["🇰🇳","Saint Kitts and Nevis","1869"],["🇱🇨","Saint Lucia","1758"],["🇻🇨","Saint Vincent","1784"],["🇼🇸","Samoa","685"],["🇸🇲","San Marino","378"],["🇸🇹","Sao Tome and Principe","239"],["🇸🇦","Saudi Arabia","966"],["🇸🇳","Senegal","221"],["🇷🇸","Serbia","381"],["🇸🇨","Seychelles","248"],["🇸🇱","Sierra Leone","232"],["🇸🇬","Singapore","65"],["🇸🇰","Slovakia","421"],["🇸🇮","Slovenia","386"],["🇸🇧","Solomon Islands","677"],["🇸🇴","Somalia","252"],["🇿🇦","South Africa","27"],["🇸🇩","Sudan","249"],["🇸🇷","Suriname","597"],["🇸🇪","Sweden","46"],["🇨🇭","Switzerland","41"],["🇸🇾","Syria","963"],["🇹🇼","Taiwan","886"],["🇹🇯","Tajikistan","992"],["🇹🇿","Tanzania","255"],["🇹🇭","Thailand","66"],["🇹🇱","Timor-Leste","670"],["🇹🇬","Togo","228"],["🇹🇴","Tonga","676"],["🇹🇹","Trinidad and Tobago","1868"],["🇹🇳","Tunisia","216"],["🇹🇷","Turkey","90"],["🇹🇲","Turkmenistan","993"],["🇹🇻","Tuvalu","688"],["🇺🇬","Uganda","256"],["🇺🇦","Ukraine","380"],["🇦🇪","UAE","971"],["🇬🇧","United Kingdom","44"],["🇺🇸","United States","1"],["🇺🇾","Uruguay","598"],["🇺🇿","Uzbekistan","998"],["🇻🇺","Vanuatu","678"],["🇻🇦","Vatican City","379"],["🇻🇪","Venezuela","58"],["🇻🇳","Vietnam","84"],["🇾🇪","Yemen","967"],["🇿🇲","Zambia","260"],["🇿🇼","Zimbabwe","263"],["🇭🇰","Hong Kong","852"],["🇲🇴","Macau","853"],["🇵🇷","Puerto Rico","1787"],["🇬🇺","Guam","1671"],["🇵🇫","French Polynesia","689"],["🇳🇨","New Caledonia","687"],["🇷🇪","Reunion","262"],["🇲🇶","Martinique","596"],["🇬🇵","Guadeloupe","590"],["🇬🇫","French Guiana","594"],["🇾🇹","Mayotte","262"],["🇲🇾","Malaysia","60"]
+];
+let ALL=[...COUNTRIES],users=JSON.parse(localStorage.getItem('fn_users')||'[]'),cur=JSON.parse(localStorage.getItem('fn_cur')||'null'),posts=JSON.parse(localStorage.getItem('fn_posts')||'[]');
+function fillC(l,selectId){let el=document.getElementById(selectId);el.innerHTML=`<option value="">Select your country...</option>`+l.map(c=>`<option value="${c[2]}">${c[0]} ${c[1]} +${c[2]}</option>`).join('');el.value="211";}
+function filterC(q,selectId){q=q.toLowerCase().trim();if(!q){fillC(ALL,selectId);return;}let f=ALL.filter(c=>c[1].toLowerCase().includes(q)||c[2].includes(q)||c[0].includes(q));fillC(f.length?f:ALL,selectId);}
+function fillB(){let d="<option>Day</option>";for(let i=1;i<=31;i++)d+=`<option>${i}</option>`;let m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];let mh="<option>Month</option>";m.forEach((x,i)=>mh+=`<option value="${i+1}">${x}</option>`);let y="<option>Year</option>";for(let i=new Date().getFullYear();i>=1950;i--)y+=`<option>${i}</option>`;document.getElementById('dDay').innerHTML=d;document.getElementById('dMon').innerHTML=mh;document.getElementById('dYear').innerHTML=y;}
+function show(t){document.getElementById('loginBox').style.display=t==='login'?'block':'none';document.getElementById('signupBox').style.display=t==='signup'?'block':'none';}
+function calcAge(d,m,y){let t=new Date(),b=new Date(y,m-1,d),a=t.getFullYear()-b.getFullYear();if(t.getMonth()<b.getMonth()||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate()))a--;return a;}
+function getFlag(code){let f=ALL.find(c=>c[2]==code);return f?f[0]+" "+f[1]+" +"+f[2]:"🌍 +"+code;}
+function doSignup(){let f=document.getElementById('first').value.trim(),l=document.getElementById('last').value.trim(),d=document.getElementById('dDay').value,m=document.getElementById('dMon').value,y=document.getElementById('dYear').value,cc=document.getElementById('country').value,ph=document.getElementById('phone').value.trim(),pw=document.getElementById('pass').value;if(!f||!l||!d||!m||!y||!cc||!ph||!pw){document.getElementById('err').innerText="Fill all fields - select your country too";return;}let age=calcAge(+d,+m,+y);if(age<20){document.getElementById('err').innerText="FaceNile is for 20 years and above only";return;}let u={id:Date.now(),display:f+" "+l,day:d,month:m,age:age,code:cc,phone:ph,pass:pw,flag:getFlag(cc)};users.push(u);localStorage.setItem('fn_users',JSON.stringify(users));cur=u;localStorage.setItem('fn_cur',JSON.stringify(u));showMain();}
+function doLogin(){let n=document.getElementById('loginName').value.trim(),p=document.getElementById('loginPass').value,cc=document.getElementById('loginCountry').value;let f=users.find(u=>(u.phone===n&&(!cc||u.code===cc)||u.display.toLowerCase()===n.toLowerCase())&&u.pass===p);if(!f){alert("Wrong login - Sign Up first");return;}cur=f;localStorage.setItem('fn_cur',JSON.stringify(cur));showMain();}
+function showMain(){document.getElementById('auth').style.display='none';document.getElementById('topBar').style.display='flex';document.getElementById('feed').style.display='block';document.getElementById('pName').innerText=cur.display;document.getElementById('av').innerText=cur.display.charAt(0);document.getElementById('pMeta').innerText="Born "+cur.day+"/"+cur.month+" • Age "+cur.age;document.getElementById('pFlag').innerText=cur.flag+" • +"+cur.code+" "+cur.phone;render();}
+function createPost(){let t=document.getElementById('postText').value.trim();if(!t)return;posts.unshift({name:cur.display,text:t,likes:0});localStorage.setItem('fn_posts',JSON.stringify(posts.slice(0,20)));document.getElementById('postText').value="";render();}
+function likePost(i){posts[i].likes++;localStorage.setItem('fn_posts',JSON.stringify(posts));render();}
+function render(){document.getElementById('posts').innerHTML=posts.map((p,i)=>`<div class="post"><b>${p.name}</b><p>${p.text}</p><small>${p.likes} likes</small><br><button onclick="likePost(${i})">👍 Like</button> <button onclick="alert('Comment')">💬 Comment</button> <button onclick="alert('Shared')">↗ Share</button></div>`).join('')||"<p>No posts yet</p>";}
+function goHome(){document.getElementById('searchRes').innerHTML="";render();}
+function goProfile(){alert("Profile: "+cur.display+" • "+cur.flag+" • +"+cur.code+" "+cur.phone);}
+function doSearch(q){if(!q){document.getElementById('searchRes').innerHTML="";return;}let f=users.filter(u=>u.display.toLowerCase().includes(q.toLowerCase()));document.getElementById('searchRes').innerHTML=f.map(u=>`<div>👤 ${u.display} ${u.flag} <button onclick="alert('Friend Request Sent')" style="width:auto">+ Add Friend</button> <button onclick="alert('Message')" style="width:auto">💬 Message</button></div>`).join('')||"No friends found";}
+function logout(){localStorage.removeItem('fn_cur');location.reload();}
+fillC(ALL,'country');fillC(ALL,'loginCountry');fillB();if(cur)showMain();
+</script>
 </body>
-</html>
+  </html>
